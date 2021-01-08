@@ -1,216 +1,235 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>employeesList</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-	<!-- ¸Ş´º -->
-	<div>
-		<table border="1">
-			<tr>
-				<td><a href="./index.jsp">È¨À¸·Î</a></td>
-				<td><a href="./departmentsList.jsp">departments Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptEmpList.jsp">dept_emp Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptManagerList.jsp">dept_manager Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./employeesList.jsp">employees Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./salariesList.jsp">salaries Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./titlesList.jsp">titles Å×ÀÌºí ¸ñ·Ï</a></td>
-			</tr>
-		</table>
-	</div>
-	
-	<!-- ³»¿ë -->
-	<%
-		request.setCharacterEncoding("UTF-8");
-	
-		int currentPage = 1; // ±âº»°ªÀ» 1ÆäÀÌÁö·Î ¼³Á¤
-		int rowPerPage = 10; // 1ÆäÀÌÁö´ç 10°³ Á¦ÇÑ
-		if (request.getParameter("currentPage") != null) {
-			currentPage = Integer.parseInt(request.getParameter("currentPage"));
-		}
-		// ¼ºº° º¯¼ö
-		String searchGender = "¼±ÅÃ¾ÈÇÔ";
-		if (request.getParameter("searchGender") != null) {
-			searchGender = request.getParameter("searchGender");
-		}
-		// ÀÌ¸§ º¯¼ö
-		String searchName = "";
-		if (request.getParameter("searchName") != null) {
-			searchName = request.getParameter("searchName");
-		}
-		// DB
-		Class.forName("org.mariadb.jdbc.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees", "root", "java1004");
-		// Äõ¸®¹®
-		String sql = "";
-		PreparedStatement stmt = null;
-		// µ¿Àû Äõ¸®
-		if (searchGender.equals("¼±ÅÃ¾ÈÇÔ") && searchName.equals("")) {
-			// ¼ºº° x, ÀÌ¸§ x
-			sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees LIMIT ?, ?";
-			
-			stmt = conn.prepareStatement(sql);
-			stmt.setInt(1, (currentPage-1)*rowPerPage); 
-			stmt.setInt(2, rowPerPage);
-		} else if (!searchGender.equals("¼±ÅÃ¾ÈÇÔ") && searchName.equals("")) {
-			// ¼ºº° o, ÀÌ¸§ x
-			sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE gender=? LIMIT ?, ?";
-			
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, searchGender);
-			stmt.setInt(2, (currentPage-1)*rowPerPage); 
-			stmt.setInt(3, rowPerPage);
-		} else if (searchGender.equals("¼±ÅÃ¾ÈÇÔ") && !searchName.equals("")) {
-			// ¼ºº° x, ÀÌ¸§ o
-			sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE (first_name LIKE ? OR last_name LIKE ?) LIMIT ?, ?";
-			
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, "%"+searchName+"%");
-			stmt.setString(2, "%"+searchName+"%");
-			stmt.setInt(3, (currentPage-1)*rowPerPage); 
-			stmt.setInt(4, rowPerPage);
-		} else if (!searchGender.equals("¼±ÅÃ¾ÈÇÔ") && !searchName.equals("")) {
-			// ¼ºº° o, ÀÌ¸§ o
-			sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE gender=? AND (first_name LIKE ? OR last_name LIKE ?) LIMIT ?, ?";
-			
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, searchGender);
-			stmt.setString(2, "%"+searchName+"%");
-			stmt.setString(3, "%"+searchName+"%");
-			stmt.setInt(4, (currentPage-1)*rowPerPage); 
-			stmt.setInt(5, rowPerPage);
-		}
-		// °á°ú Ãâ·Â
-		ResultSet rs = stmt.executeQuery();
-	%>
-	<!-- employees Å×ÀÌºí ¸ñ·Ï -->
-	<h1>employees Å×ÀÌºí ¸ñ·Ï</h1>
-	<table border="1">
-		<thead>
-			<tr>
-				<th>emp_no</th>
-				<th>birth_date</th>
-				<th>first_name</th>
-				<th>last_name</th>
-				<th>gender</th>
-				<th>hire_date</th>
-			</tr>
-		</thead>
-		<tbody>
+	<!-- ë©”ë‰´ -->
+	<div class="container"><br>
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" href="./index.jsp">í™ˆìœ¼ë¡œ</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./departmentsList.jsp">departments</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptEmpList.jsp">dept_emp</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptManagerList.jsp">dept_manager</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./employeesList.jsp">employees</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./salariesList.jsp">salaries</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./titlesList.jsp">titles</a>
+				</li>
+			</ul>
+		</nav><br>
+		<!-- ë‚´ìš© -->
+		<%
+			request.setCharacterEncoding("UTF-8");
+		
+			int currentPage = 1; // ê¸°ë³¸ê°’ì„ 1í˜ì´ì§€ë¡œ ì„¤ì •
+			int rowPerPage = 10; // 1í˜ì´ì§€ë‹¹ 10ê°œ ì œí•œ
+			if (request.getParameter("currentPage") != null) {
+				currentPage = Integer.parseInt(request.getParameter("currentPage"));
+			}
+			// ì„±ë³„ ë³€ìˆ˜
+			String searchGender = "ì„ íƒì•ˆí•¨";
+			if (request.getParameter("searchGender") != null) {
+				searchGender = request.getParameter("searchGender");
+			}
+			// ì´ë¦„ ë³€ìˆ˜
+			String searchName = "";
+			if (request.getParameter("searchName") != null) {
+				searchName = request.getParameter("searchName");
+			}
+			// DB
+			Class.forName("org.mariadb.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees", "root", "java1004");
+			// ì¿¼ë¦¬ë¬¸
+			String sql = "";
+			PreparedStatement stmt = null;
+			// ë™ì  ì¿¼ë¦¬
+			if (searchGender.equals("ì„ íƒì•ˆí•¨") && searchName.equals("")) {
+				// ì„±ë³„ x, ì´ë¦„ x
+				sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees LIMIT ?, ?";
+				
+				stmt = conn.prepareStatement(sql);
+				stmt.setInt(1, (currentPage-1)*rowPerPage); 
+				stmt.setInt(2, rowPerPage);
+			} else if (!searchGender.equals("ì„ íƒì•ˆí•¨") && searchName.equals("")) {
+				// ì„±ë³„ o, ì´ë¦„ x
+				sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE gender=? LIMIT ?, ?";
+				
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, searchGender);
+				stmt.setInt(2, (currentPage-1)*rowPerPage); 
+				stmt.setInt(3, rowPerPage);
+			} else if (searchGender.equals("ì„ íƒì•ˆí•¨") && !searchName.equals("")) {
+				// ì„±ë³„ x, ì´ë¦„ o
+				sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE (first_name LIKE ? OR last_name LIKE ?) LIMIT ?, ?";
+				
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, "%"+searchName+"%");
+				stmt.setString(2, "%"+searchName+"%");
+				stmt.setInt(3, (currentPage-1)*rowPerPage); 
+				stmt.setInt(4, rowPerPage);
+			} else if (!searchGender.equals("ì„ íƒì•ˆí•¨") && !searchName.equals("")) {
+				// ì„±ë³„ o, ì´ë¦„ o
+				sql = "SELECT emp_no, birth_date, first_name, last_name, gender, hire_date FROM employees WHERE gender=? AND (first_name LIKE ? OR last_name LIKE ?) LIMIT ?, ?";
+				
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, searchGender);
+				stmt.setString(2, "%"+searchName+"%");
+				stmt.setString(3, "%"+searchName+"%");
+				stmt.setInt(4, (currentPage-1)*rowPerPage); 
+				stmt.setInt(5, rowPerPage);
+			}
+			// ê²°ê³¼ ì¶œë ¥
+			ResultSet rs = stmt.executeQuery();
+		%>
+		<!-- employees í…Œì´ë¸” ëª©ë¡ -->
+		<h1>employees í…Œì´ë¸” ëª©ë¡</h1>
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>emp_no</th>
+					<th>birth_date</th>
+					<th>first_name</th>
+					<th>last_name</th>
+					<th>gender</th>
+					<th>hire_date</th>
+				</tr>
+			</thead>
+			<tbody>
 			<%
 				while(rs.next()) {
 			%>
-					<tr>
-						<td><%=rs.getInt("emp_no") %></td>
-						<td><%=rs.getString("birth_date") %></td>
-						<td><%=rs.getString("first_name") %></td>
-						<td><%=rs.getString("last_name") %></td>
-						<td>
-						<%
-							if(rs.getString("gender").equals("M")){
-						%>
-							³²ÀÚ
-						<%
-							}else{
-						%>
-							¿©ÀÚ
-						<%
-							}
-						%>
-						</td>
-						<td><%=rs.getString("hire_date") %></td>
-					</tr>
+				<tr>
+					<td><%=rs.getInt("emp_no") %></td>
+					<td><%=rs.getString("birth_date") %></td>
+					<td><%=rs.getString("first_name") %></td>
+					<td><%=rs.getString("last_name") %></td>
+					<td>
+					<%
+						if(rs.getString("gender").equals("M")){
+					%>
+						ë‚¨ì
+					<%
+						}else{
+					%>
+						ì—¬ì
+					<%
+						}
+					%>
+					</td>
+					<td><%=rs.getString("hire_date") %></td>
+				</tr>
 			<%
 				}
 			%>
-		</tbody>
-	</table>
-	<!-- °Ë»ö -->
-	<form method="post" action="./employeesList.jsp">
-		<div>
-			¼ºº°:
-			<select name="searchGender">
+			</tbody>
+		</table>
+		<!-- ê²€ìƒ‰ -->
+		<form class="form-inline mt-1 mb-1" method="post" action="./employeesList.jsp">
+			<div class="form-group">
+				<label>ì„±ë³„:</label>
+				<select class="form-control ml-1 mr-1" name="searchGender">
 				<%
-					if (searchGender.equals("¼±ÅÃ¾ÈÇÔ")) {
+					if (searchGender.equals("ì„ íƒì•ˆí•¨")) {
 				%>
-						<option value="¼±ÅÃ¾ÈÇÔ" selected="selected">¼±ÅÃ¾ÈÇÔ</option>
+					<option value="ì„ íƒì•ˆí•¨" selected="selected">ì„ íƒì•ˆí•¨</option>
 				<%
 					} else {
 				%>
-						<option value="¼±ÅÃ¾ÈÇÔ">¼±ÅÃ¾ÈÇÔ</option>
+					<option value="ì„ íƒì•ˆí•¨">ì„ íƒì•ˆí•¨</option>
 				<%
 					}
 				%>
 				<%
 					if (searchGender.equals("M")) {
 				%>
-						<option value="M" selected="selected">³²</option>
+					<option value="M" selected="selected">ë‚¨</option>
 				<%
 					} else {
 				%>
-						<option value="M">³²</option>
+					<option value="M">ë‚¨</option>
 				<%
 					}
-				%>
-				
-				<%
 					if (searchGender.equals("F")) {
 				%>
-						<option value="F" selected="selected">¿©</option>
+						<option value="F" selected="selected">ì—¬</option>
 				<%
 					} else {
 				%>
-						<option value="F">¿©</option>
+						<option value="F">ì—¬</option>
 				<%
 					}
 				%>
-			</select>
-			<!-- °Ë»ö -->
-			ÀÌ¸§:
-			<input type="text" name="searchName" value="<%=searchName %>">
-			<button type="submit">°Ë»ö</button>
+				</select>
+				<!-- ê²€ìƒ‰ -->
+				<label>ì´ë¦„ :</label>
+				<input class="form-control ml-1 mr-1" type="text" name="searchName" value="<%=searchName %>">
+				<button class="form-control btn btn-outline-success"type="submit">ê²€ìƒ‰</button>
 			</div>
-		<div>
-			<!-- ÆäÀÌÂ¡ ³×ºñ°ÔÀÌ¼Ç -->
-			<% 
-				if(currentPage != 1) {
-			%>
-					<a href="./employeesList.jsp?currentPage=1&searchGender=<%=searchGender%>&searchName=<%=searchName%>">Ã³À½À¸·Î</a>
-			<%
-				}
-				if(currentPage > 1) {
-			%>
-					<a href="./employeesList.jsp?currentPage=<%=currentPage-1%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">ÀÌÀü</a>
-			<%
-				}
-			%>
-			<%
-				String sql2 = "select count(*) from employees";
-				PreparedStatement stmt2 = conn.prepareStatement(sql2);
-				ResultSet rs2 = stmt2.executeQuery();
-				int totalCount = 0;
-				if(rs2.next()) {
-					totalCount = rs2.getInt("count(*)");
-				}
-				int lastPage = totalCount / rowPerPage;
-				if(totalCount % rowPerPage != 0) {
-					lastPage ++;
-				}
-				if(currentPage < lastPage) {
-			%>
-					<a href="./employeesList.jsp?currentPage=<%=currentPage+1%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">´ÙÀ½</a>
-			<%
-				}
-				if (currentPage < lastPage) {
-			%>
-					<a href="./employeesList.jsp?currentPage=<%=lastPage%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">¸¶Áö¸·À¸·Î</a>
-			<%
-				}
-			%>
-		</div>
-	</form>
+		</form><br>
+		<!-- í˜ì´ì§• ë„¤ë¹„ê²Œì´ì…˜ -->
+		<ul class="pagination justify-content-center">
+		<% 
+			if(currentPage != 1) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./employeesList.jsp?currentPage=1&searchGender=<%=searchGender%>&searchName=<%=searchName%>">ì²˜ìŒìœ¼ë¡œ</a>
+			</li>
+		<%
+			}
+			if(currentPage > 1) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./employeesList.jsp?currentPage=<%=currentPage-1%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">ì´ì „</a>
+			</li>
+		<%
+			}
+		%>
+		<%
+			String sql2 = "select count(*) from employees";
+			PreparedStatement stmt2 = conn.prepareStatement(sql2);
+			ResultSet rs2 = stmt2.executeQuery();
+			int totalCount = 0;
+			if(rs2.next()) {
+				totalCount = rs2.getInt("count(*)");
+			}
+			int lastPage = totalCount / rowPerPage;
+			if(totalCount % rowPerPage != 0) {
+				lastPage ++;
+			}
+			if(currentPage < lastPage) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./employeesList.jsp?currentPage=<%=currentPage+1%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">ë‹¤ìŒ</a>
+			</li>
+		<%
+			}
+			if (currentPage < lastPage) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./employeesList.jsp?currentPage=<%=lastPage%>&searchGender=<%=searchGender%>&searchName=<%=searchName%>">ë§ˆì§€ë§‰ìœ¼ë¡œ</a>
+			</li>
+		<%
+			}
+		%>
+		</ul>
+	</div>
 </body>
 </html>

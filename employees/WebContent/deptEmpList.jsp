@@ -1,193 +1,222 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>deptEmpList</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<!-- ¸Ş´º  -->
-	<div>
-		<table border ="1">
-			<tr>
-				<td><a href="./">È¨À¸·Î</a></td>
-				<td><a href="./departmentsList.jsp">departments Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptEmpList.jsp">dept_emp Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptManagerList.jsp">dept_manager Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./employeesList.jsp">employees Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./salariesList.jsp">salaries Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./titlesList.jsp">titles Å×ÀÌºí ¸ñ·Ï</a></td>
-			</tr>
-		</table>
-	</div>
-	
-	<!-- dept_emp Å×ÀÌºí ¸ñ·Ï -->
-	<h1>dept_emp Å×ÀÌºí ¸ñ·Ï</h1>
-	<%
-		request.setCharacterEncoding("utf-8");
-	
-		//Ã¼Å©¹Ú½º º¯¼ö
-		String ck = "no";
-		if(request.getParameter("ck") != null){
-			ck = request.getParameter("ck"); // ck = "yes";
-		}
-		
-		//select ºÎ¼­ º¯¼ö
-		String deptNo = "";
-		if(request.getParameter("deptNo") != null){
-			deptNo = request.getParameter("deptNo");
-		}
-		
-		//ÇöÀç ÆäÀÌÁö
-		int currentPage = 1;
-		
-		if(request.getParameter("currentPage") != null){
-			currentPage = Integer.parseInt(request.getParameter("currentPage"));
-		}
-		
-		int rowPerPage = 10;
-		
-		Class.forName("org.mariadb.jdbc.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees", "root", "java1004");
-		System.out.println(conn + "<- conn");
-		
-		String sql1 = "";
-		String sql2 = "";
-		PreparedStatement stmt = null;
-		PreparedStatement stmt2 = null;
-		
-		// µ¿ÀûÄõ¸®
-		// 1. Ã¼Å©x, ºÎ¼­°Ë»öx
-		if(ck.equals("no") && deptNo.equals("")){
-			sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp order by emp_no desc limit ?, ?";
-			stmt = conn.prepareStatement(sql1);
-			stmt.setInt(1, (currentPage-1)*rowPerPage);
-			stmt.setInt(2, rowPerPage);
-			sql2 = "select count(*) from dept_emp order by emp_no desc";
-			stmt2 = conn.prepareStatement(sql2);
-		// 2. Ã¼Å©o, ºÎ¼­°Ë»öx
-		}else if(ck.equals("yes") && deptNo.equals("")){
-			sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where to_date = '9999-01-01' order by emp_no desc limit ?, ?";
-			stmt = conn.prepareStatement(sql1);
-			stmt.setInt(1, (currentPage-1)*rowPerPage);
-			stmt.setInt(2, rowPerPage);
-			sql2 = "select count(*) from dept_emp where to_date = '9999-01-01'";
-			stmt2 = conn.prepareStatement(sql2);
-		// 3. Ã¼Å©x, ºÎ¼­°Ë»öo
-		}else if(ck.equals("no") && deptNo.equals("")){
-			sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where dept_no = ? order by emp_no desc limit ?, ?";
-			stmt = conn.prepareStatement(sql1);
-			stmt.setString(1, deptNo);
-			stmt.setInt(2, (currentPage-1)*rowPerPage);
-			stmt.setInt(3, rowPerPage);
-			sql2 = "select count(*) from dept_emp where dept_no = ?";
-			stmt2 = conn.prepareStatement(sql2);
-			stmt2.setString(1, deptNo);
-		// 4. Ã¼Å©o, ºÎ¼­°Ë»öo
-		}else{
-			sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where dept_no = ? and to_date = '9999-01-01' order by emp_no desc limit ?, ?";
-			stmt = conn.prepareStatement(sql1);
-			stmt.setString(1, deptNo);
-			stmt.setInt(2, (currentPage-1)*rowPerPage);
-			stmt.setInt(3, rowPerPage);
-			sql2 = "select count(*) from dept_emp where dept_no = ? and to_date = '9999-01-01'";
-			stmt2 = conn.prepareStatement(sql2);
-			stmt2.setString(1, deptNo);
-		}
-		
-		ResultSet rs1 = stmt.executeQuery();
-		ResultSet rs2 = stmt2.executeQuery();
-		
-		// Å×ÀÌºí ÃÑ °³¼ö
-		int totalCount = 0;
-		if(rs2.next()){
-			totalCount = rs2.getInt("count(*)");
-		}
-				
-		int lastPage = totalCount / rowPerPage;
-		if(totalCount % rowPerPage != 0){
-			lastPage ++;
-		}
-		
-		//departments¿¡ ÀÖ´Â dept_no °¡Á®¿À±â
-		String sql3 = "select dept_no from departments";
-		PreparedStatement stmt3 = conn.prepareStatement(sql3);
-		ResultSet rs3 = stmt3.executeQuery();
-	%>
-	<!-- ÇöÀç ºÎ¼­¿¡ ±Ù¹«ÁßÀÎÁö ¾î´À ºÎ¼­ÀÎÁö °Ë»ö -->
-	<form action="./deptEmpList.jsp">
+	<!-- ë©”ë‰´ -->
+	<div class="container"><br>
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" href="./index.jsp">í™ˆìœ¼ë¡œ</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./departmentsList.jsp">departments</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptEmpList.jsp">dept_emp</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptManagerList.jsp">dept_manager</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./employeesList.jsp">employees</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./salariesList.jsp">salaries</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./titlesList.jsp">titles</a>
+				</li>
+			</ul>
+		</nav><br>
+		<!-- dept_emp í…Œì´ë¸” ëª©ë¡ -->
+		<h1>dept_emp í…Œì´ë¸” ëª©ë¡</h1>
 		<%
-			if(ck.equals("no")){
-		%>
-				<input type="checkbox" name="ck" value="yes">ÇöÀç ºÎ¼­¿¡ ±Ù¹«Áß
-		<%
-			}else{
-		%>
-				<input type="checkbox" name="ck" value="yes" checked="checked">ÇöÀç ºÎ¼­¿¡ ±Ù¹«Áß
-		<%
+			request.setCharacterEncoding("utf-8");
+		
+			//ì²´í¬ë°•ìŠ¤ ë³€ìˆ˜
+			String ck = "no";
+			if(request.getParameter("ck") != null){
+				ck = request.getParameter("ck"); // ck = "yes";
 			}
+			
+			//select ë¶€ì„œ ë³€ìˆ˜
+			String deptNo = "";
+			if(request.getParameter("deptNo") != null){
+				deptNo = request.getParameter("deptNo");
+			}
+			
+			//í˜„ì¬ í˜ì´ì§€
+			int currentPage = 1;
+			
+			if(request.getParameter("currentPage") != null){
+				currentPage = Integer.parseInt(request.getParameter("currentPage"));
+			}
+			
+			int rowPerPage = 10;
+			
+			Class.forName("org.mariadb.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees", "root", "java1004");
+			System.out.println(conn + "<- conn");
+			
+			String sql1 = "";
+			String sql2 = "";
+			PreparedStatement stmt = null;
+			PreparedStatement stmt2 = null;
+			
+			// ë™ì ì¿¼ë¦¬
+			// 1. ì²´í¬x, ë¶€ì„œê²€ìƒ‰x
+			if(ck.equals("no") && deptNo.equals("")){
+				sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp order by emp_no desc limit ?, ?";
+				stmt = conn.prepareStatement(sql1);
+				stmt.setInt(1, (currentPage-1)*rowPerPage);
+				stmt.setInt(2, rowPerPage);
+				sql2 = "select count(*) from dept_emp order by emp_no desc";
+				stmt2 = conn.prepareStatement(sql2);
+			// 2. ì²´í¬o, ë¶€ì„œê²€ìƒ‰x
+			}else if(ck.equals("yes") && deptNo.equals("")){
+				sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where to_date = '9999-01-01' order by emp_no desc limit ?, ?";
+				stmt = conn.prepareStatement(sql1);
+				stmt.setInt(1, (currentPage-1)*rowPerPage);
+				stmt.setInt(2, rowPerPage);
+				sql2 = "select count(*) from dept_emp where to_date = '9999-01-01'";
+				stmt2 = conn.prepareStatement(sql2);
+			// 3. ì²´í¬x, ë¶€ì„œê²€ìƒ‰o
+			}else if(ck.equals("no") && deptNo.equals("")){
+				sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where dept_no = ? order by emp_no desc limit ?, ?";
+				stmt = conn.prepareStatement(sql1);
+				stmt.setString(1, deptNo);
+				stmt.setInt(2, (currentPage-1)*rowPerPage);
+				stmt.setInt(3, rowPerPage);
+				sql2 = "select count(*) from dept_emp where dept_no = ?";
+				stmt2 = conn.prepareStatement(sql2);
+				stmt2.setString(1, deptNo);
+			// 4. ì²´í¬o, ë¶€ì„œê²€ìƒ‰o
+			}else{
+				sql1 = "select emp_no, dept_no, from_date, to_date from dept_emp where dept_no = ? and to_date = '9999-01-01' order by emp_no desc limit ?, ?";
+				stmt = conn.prepareStatement(sql1);
+				stmt.setString(1, deptNo);
+				stmt.setInt(2, (currentPage-1)*rowPerPage);
+				stmt.setInt(3, rowPerPage);
+				sql2 = "select count(*) from dept_emp where dept_no = ? and to_date = '9999-01-01'";
+				stmt2 = conn.prepareStatement(sql2);
+				stmt2.setString(1, deptNo);
+			}
+			
+			ResultSet rs1 = stmt.executeQuery();
+			ResultSet rs2 = stmt2.executeQuery();
+			
+			// í…Œì´ë¸” ì´ ê°œìˆ˜
+			int totalCount = 0;
+			if(rs2.next()){
+				totalCount = rs2.getInt("count(*)");
+			}
+					
+			int lastPage = totalCount / rowPerPage;
+			if(totalCount % rowPerPage != 0){
+				lastPage ++;
+			}
+			
+			//departmentsì— ìˆëŠ” dept_no ê°€ì ¸ì˜¤ê¸°
+			String sql3 = "select dept_no from departments";
+			PreparedStatement stmt3 = conn.prepareStatement(sql3);
+			ResultSet rs3 = stmt3.executeQuery();
 		%>
-		
-		<select name="deptNo">
-			<option value="">¼±ÅÃ¾ÈÇÔ</option>
+		<!-- ëª©ë¡ -->
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>emp_no</th>
+					<th>dept_no</th>
+					<th>from_date</th>
+					<th>to_date</th>
+				</tr>
+			</thead>
+			<tbody>
 			<%
-				while(rs3.next()){
-					if(deptNo.equals(rs3.getString("dept_no"))){
+				while(rs1.next()){
 			%>
-						<option value="<%=rs3.getString("dept_no")%>" selected="selected"><%=rs3.getString("dept_no")%></option>
+				<tr>
+					<td><%=rs1.getInt("emp_no")%></td>
+					<td><%=rs1.getString("dept_no") %></td>
+					<td><%=rs1.getString("from_date") %></td>
+					<td><%=rs1.getString("to_date") %></td>
+				</tr>
 			<%
-					}else{
-			%>
-						<option value="<%=rs3.getString("dept_no")%>"><%=rs3.getString("dept_no")%></option>
-			<%
-					}
 				}
 			%>
-		</select>
-		<button type="submit">°Ë»ö</button>
-	</form>
-	<!-- ¸ñ·Ï -->
-	<table border="1">
-		<thead>
-			<tr>
-				<th>emp_no</th>
-				<th>dept_no</th>
-				<th>from_date</th>
-				<th>to_date</th>
-			</tr>
-		</thead>
-		<tbody>
-		<%
-			while(rs1.next()){
-		%>
-			<tr>
-				<td><%=rs1.getInt("emp_no")%></td>
-				<td><%=rs1.getString("dept_no") %></td>
-				<td><%=rs1.getString("from_date") %></td>
-				<td><%=rs1.getString("to_date") %></td>
-			</tr>
-		<%
-			}
-		%>
-		</tbody>
-	</table>
-		<!-- ÆäÀÌÂ¡ ³×ºñ°ÔÀÌ¼Ç -->
-			<a href="./deptEmpList.jsp?currentPage=1&ck=<%=ck%>&deptNo=<%=deptNo%>">Ã³À½À¸·Î</a>
-		<%
-			if(currentPage > 1){
-		%>
-			<a href="./deptEmpList.jsp?currentPage=<%=currentPage-1%>&ck=<%=ck%>&deptNo=<%=deptNo%>">ÀÌÀü</a>
-		<%
-			}
-		
-		if(currentPage < lastPage){
-		%>
-			<a href="./deptEmpList.jsp?currentPage=<%=currentPage+1%>&ck=<%=ck%>&deptNo=<%=deptNo%>">´ÙÀ½</a>
-		<%
-		}
-		%>
-			<a href="./deptEmpList.jsp?currentPage=<%=lastPage%>&ck=<%=ck%>&deptNo=<%=deptNo%>">¸¶Áö¸·À¸·Î</a>
+			</tbody>
+		</table>
+		<!-- í˜„ì¬ ë¶€ì„œì— ê·¼ë¬´ì¤‘ì¸ì§€ ì–´ëŠ ë¶€ì„œì¸ì§€ ê²€ìƒ‰ -->
+		<form class="form-inline" action="./deptEmpList.jsp">
+			<div class="form-check-inline">
+			<%
+				if(ck.equals("no")){
+			%>
+				<label class="form-check-label">
+					<input class="form-check-input" type="checkbox" name="ck" value="yes">í˜„ì¬ ë¶€ì„œì— ê·¼ë¬´ì¤‘
+				</label>
+			<%
+				}else{
+			%>
+				<label class="form-check-label">
+					<input class="form-check-input" type="checkbox" name="ck" value="yes" checked="checked">í˜„ì¬ ë¶€ì„œì— ê·¼ë¬´ì¤‘
+				</label>
+			<%
+				}
+			%>
+			</div>
+			<div class="form-group">
+				<select class="form-control mr-1" name="deptNo">
+					<option value="">ì„ íƒì•ˆí•¨</option>
+					<%
+						while(rs3.next()){
+							if(deptNo.equals(rs3.getString("dept_no"))){
+					%>
+								<option value="<%=rs3.getString("dept_no")%>" selected="selected"><%=rs3.getString("dept_no")%></option>
+					<%
+							}else{
+					%>
+								<option value="<%=rs3.getString("dept_no")%>"><%=rs3.getString("dept_no")%></option>
+					<%
+							}
+						}
+					%>
+				</select>
+				<button class="form-control btn btn-outline-success" type="submit">ê²€ìƒ‰</button>
+			</div>
+		</form><br>
+		<!-- í˜ì´ì§• ë„¤ë¹„ê²Œì´ì…˜ -->
+		<ul class="pagination justify-content-center">
+			<li class="page-item">
+				<a class="page-link" href="./deptEmpList.jsp?currentPage=1&ck=<%=ck%>&deptNo=<%=deptNo%>">ì²˜ìŒìœ¼ë¡œ</a>
+			</li>
+			<%
+				if(currentPage > 1){
+			%>
+			<li class="page-item">
+				<a class="page-link" href="./deptEmpList.jsp?currentPage=<%=currentPage-1%>&ck=<%=ck%>&deptNo=<%=deptNo%>">ì´ì „</a>
+			</li>
+			<%
+				}
+				if(currentPage < lastPage){
+			%>
+			<li class="page-item">
+				<a class="page-link" href="./deptEmpList.jsp?currentPage=<%=currentPage+1%>&ck=<%=ck%>&deptNo=<%=deptNo%>">ë‹¤ìŒ</a>
+			</li>
+			<%
+				}
+			%>
+			<li class="page-item">
+				<a class="page-link" href="./deptEmpList.jsp?currentPage=<%=lastPage%>&ck=<%=ck%>&deptNo=<%=deptNo%>">ë§ˆì§€ë§‰ìœ¼ë¡œ</a>
+			</li>
+		</ul>
+	</div>
 </body>
 </html>

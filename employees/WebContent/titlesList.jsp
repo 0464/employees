@@ -1,105 +1,127 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>titlesList</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<!-- ¸Ş´º -->
-	<div>
-		<table border="1">
-			<tr>
-				<td><a href="./index.jsp">È¨À¸·Î</a></td>
-				<td><a href="./departmentsList.jsp">departments Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptEmpList.jsp">dept_emp Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptManagerList.jsp">dept_manager Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./employeesList.jsp">employees Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="salariesList.jsp">salaries Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="titlesList.jsp">titles Å×ÀÌºí ¸ñ·Ï</a></td>
-			</tr>
-		</table>
-	</div>
-	
-	<!-- titlesList Å×ÀÌºí ¸ñ·Ï -->
-	<h1>titles Å×ÀÌºí ¸ñ·Ï</h1>
-	<%
-		int currentPage = 1;
-		int rowPerPage = 10;
-		if(request.getParameter("currentPage") != null) {
-			currentPage = Integer.parseInt(request.getParameter("currentPage"));
-		}
-		Class.forName("org.mariadb.jdbc.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees","root","java1004");
-		
-		String sql = "select emp_no,title,from_date,to_date from titles order by emp_no asc limit ?,?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, (currentPage-1)*rowPerPage);
-		stmt.setInt(2, rowPerPage);
-		ResultSet rs = stmt.executeQuery();
-	%>
-	<table border="1">
-		<thead>
-			<tr>
-				<th>emp_no</th>
-				<th>title</th>
-				<th>from_date</th>
-				<th>to_date</th>
-			</tr>
-		</thead>
-		<tbody>
+	<!-- ë©”ë‰´ -->
+	<div class="container"><br>
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" href="./index.jsp">í™ˆìœ¼ë¡œ</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./departmentsList.jsp">departments</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptEmpList.jsp">dept_emp</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptManagerList.jsp">dept_manager</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./employeesList.jsp">employees</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./salariesList.jsp">salaries</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./titlesList.jsp">titles</a>
+				</li>
+			</ul>
+		</nav><br>
+		<!-- titlesList í…Œì´ë¸” ëª©ë¡ -->
+		<h1>titles í…Œì´ë¸” ëª©ë¡</h1>
+		<%
+			int currentPage = 1;
+			int rowPerPage = 10;
+			if(request.getParameter("currentPage") != null) {
+				currentPage = Integer.parseInt(request.getParameter("currentPage"));
+			}
+			Class.forName("org.mariadb.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/employees","root","java1004");
+			
+			String sql = "select emp_no,title,from_date,to_date from titles order by emp_no asc limit ?,?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, (currentPage-1)*rowPerPage);
+			stmt.setInt(2, rowPerPage);
+			ResultSet rs = stmt.executeQuery();
+		%>
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>emp_no</th>
+					<th>title</th>
+					<th>from_date</th>
+					<th>to_date</th>
+				</tr>
+			</thead>
+			<tbody>
 			<%
 				while(rs.next()) {
 			%>
-					<tr>
-						<td><%=rs.getInt("emp_no") %></td>
-						<td><%=rs.getString("title") %></td>
-						<td><%=rs.getString("from_date") %></td>
-						<td><%=rs.getString("to_date") %></td>
-					</tr>
+				<tr>
+					<td><%=rs.getInt("emp_no") %></td>
+					<td><%=rs.getString("title") %></td>
+					<td><%=rs.getString("from_date") %></td>
+					<td><%=rs.getString("to_date") %></td>
+				</tr>
 			<%
 				}
 			%>
-		</tbody>
-	</table>
-	<!-- ÆäÀÌÂ¡ ³×ºñ°ÔÀÌ¼Ç -->
-	<div>
-	<% 
-		if(currentPage != 1) {
-	%>
-			<a href="./titlesList.jsp?currentPage=1">Ã³À½À¸·Î</a>
-	<%
-		}
-		if(currentPage > 1) {
-	%>
-	<a href="./titlesList.jsp?currentPage=<%=currentPage-1%>">ÀÌÀü</a>
-	<%
-		}
-	%>
-	<%
-		String sql2 = "select count(*) from employees";
-		PreparedStatement stmt2 = conn.prepareStatement(sql2);
-		ResultSet rs2 = stmt2.executeQuery();
-		int totalCount = 0;
-		if(rs2.next()) {
-			totalCount = rs2.getInt("count(*)");
-		}
-		int lastPage = totalCount / rowPerPage;
-		if(totalCount % rowPerPage != 0) {
-			lastPage += 1;
-		}
-		if(currentPage < lastPage) {
-	%>
-			<a href="./titlesList.jsp?currentPage=<%=currentPage+1%>">´ÙÀ½</a>
-	<%
-		}
-		if (currentPage < lastPage) {
-	%>
-			<a href="./titlesList.jsp?currentPage=<%=lastPage%>">¸¶Áö¸·À¸·Î</a>
-	<%
-		}
-	%>
+			</tbody>
+		</table>
+		<!-- í˜ì´ì§• ë„¤ë¹„ê²Œì´ì…˜ -->
+		<ul class="pagination justify-content-center">
+		<% 
+			if(currentPage != 1) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./titlesList.jsp?currentPage=1">ì²˜ìŒìœ¼ë¡œ</a>
+			</li>
+		<%
+			}
+			if(currentPage > 1) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./titlesList.jsp?currentPage=<%=currentPage-1%>">ì´ì „</a>
+			</li>
+		<%
+			}
+		%>
+		<%
+			String sql2 = "select count(*) from employees";
+			PreparedStatement stmt2 = conn.prepareStatement(sql2);
+			ResultSet rs2 = stmt2.executeQuery();
+			int totalCount = 0;
+			if(rs2.next()) {
+				totalCount = rs2.getInt("count(*)");
+			}
+			int lastPage = totalCount / rowPerPage;
+			if(totalCount % rowPerPage != 0) {
+				lastPage += 1;
+			}
+			if(currentPage < lastPage) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./titlesList.jsp?currentPage=<%=currentPage+1%>">ë‹¤ìŒ</a>
+			</li>
+		<%
+			}
+			if (currentPage < lastPage) {
+		%>
+			<li class="page-item">
+				<a class="page-link" href="./titlesList.jsp?currentPage=<%=lastPage%>">ë§ˆì§€ë§‰ìœ¼ë¡œ</a>
+			</li>
+		<%
+			}
+		%>
+		</ul>
 	</div>
 </body>
 </html>

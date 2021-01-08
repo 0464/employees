@@ -1,29 +1,41 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>index</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-	<!-- ¸Ş´º -->
-	<div>
-		<table border="1">
-			<tr>
-				<td><a href="./index.jsp">È¨À¸·Î</a></td>
-				<td><a href="./departmentsList.jsp">departments Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptEmpList.jsp">dept_emp Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./deptManagerList.jsp">dept_manager Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./employeesList.jsp">employees Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./salariesList.jsp">salaries Å×ÀÌºí ¸ñ·Ï</a></td>
-				<td><a href="./titlesList.jsp">titles Å×ÀÌºí ¸ñ·Ï</a></td>
-			</tr>
-		</table>
-	</div>
-	
-	<!-- È¨ÆäÀÌÁö(¸ŞÀÎ) ³»¿ë -->
-	<div>
-		<h1>EMPLOYEES ¹Ì´Ï ÇÁ·ÎÁ§Æ®</h1>
+	<!-- ë©”ë‰´ -->
+	<div class="container"><br>
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" href="./index.jsp">í™ˆìœ¼ë¡œ</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./departmentsList.jsp">departments</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptEmpList.jsp">dept_emp</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./deptManagerList.jsp">dept_manager</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./employeesList.jsp">employees</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./salariesList.jsp">salaries</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="./titlesList.jsp">titles</a>
+				</li>
+			</ul>
+		</nav><br>
+		<!-- í™ˆí˜ì´ì§€(ë©”ì¸) ë‚´ìš© -->
+		<h1>EMPLOYEES ë¯¸ë‹ˆ í”„ë¡œì íŠ¸</h1>
 		<img src="./Image/main.jpg">
 	</div>
 </body>
